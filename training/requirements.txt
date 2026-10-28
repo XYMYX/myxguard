@@ -1,0 +1,8 @@
+# Training only. Not installed by `pip install myxguard` or `pip install "myxguard[ml]"`.
+# The scanner runtime uses onnxruntime and tokenizers, not torch.
+torch
+transformers>=4.41,<5
+accelerate
+onnx
+onnxscript
+tokenizers

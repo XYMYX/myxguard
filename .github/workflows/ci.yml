@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install MyxGuard and test tools
+        run: pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest -q
+      - name: Run the bundled benchmark
+        run: python scripts/benchmark.py datasets/samples.jsonl
+      - name: Measure the held-out eval set
+        run: python scripts/benchmark.py datasets/eval/heldout.jsonl --eval
