@@ -1,6 +1,7 @@
 # MyxGuard
 **95% recall, 5% false positives across 5 languages – fully local.**
 Benchmark (v0.1, Oct 2026)
+Development notes and work in progress: see [DEVLOG.md](DEVLOG.md).
 
 MyxGuard is a small prompt-injection scanner for AI agents. You give it text (a user message, a web page, a file an agent is about to read) and it returns a risk score from 0 to 100, a level (`none`, `low`, `medium`, `high`, or `critical`), and a list of findings.
 
