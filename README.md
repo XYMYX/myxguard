@@ -1,4 +1,6 @@
 # MyxGuard
+**95% recall, 5% false positives across 5 languages – fully local.**
+Benchmark (v0.1, Oct 2026)
 
 MyxGuard is a small prompt-injection scanner for AI agents. You give it text (a user message, a web page, a file an agent is about to read) and it returns a risk score from 0 to 100, a level (`none`, `low`, `medium`, `high`, or `critical`), and a list of findings.
 
@@ -339,6 +341,49 @@ A row counts as detected when risk_score >= threshold. Precision is tp/(tp+fp), 
 ```bash
 python -m pytest -q
 python scripts/benchmark.py datasets/samples.jsonl
+```
+## Benchmark
+
+Evaluated on a held-out set of **370 texts** (186 malicious, 184 benign) in five languages (EN, DE, FR, IT, Swiss German).
+The held-out set was never used for training or rule tuning. Threshold: risk score ≥ 25.
+
+### Overall
+
+| Mode | Precision | Recall | F1 | False-positive rate |
+|---|---|---|---|---|
+| Rules only | 1.000 | 0.425 | 0.596 | 0.000 |
+| **Rules + MyxGuard classifier** | **0.947** | **0.952** | **0.949** | **0.054** |
+
+### By language (Rules + classifier)
+
+| Language | n | Precision | Recall | F1 | FPR |
+|---|---|---|---|---|---|
+| English | 123 | 0.923 | 0.938 | 0.930 | 0.085 |
+| German | 73 | 0.944 | 0.971 | 0.958 | 0.053 |
+| French | 57 | 0.966 | 0.966 | 0.966 | 0.036 |
+| Italian | 57 | 0.967 | 1.000 | 0.983 | 0.036 |
+| Swiss German | 60 | 0.963 | 0.897 | 0.929 | 0.032 |
+
+### Latency (CPU)
+
+| Mode | Mean | Median |
+|---|---|---|
+| Rules only | 0.4 ms | 0.3 ms |
+| Rules + classifier | 10.5 ms | 7.9 ms |
+
+The classifier is fine-tuned from `xlm-roberta-base` and exported to ONNX.
+
+### Known limitations
+
+- Benign code snippets and security discussions are sometimes flagged (4 of 7 code samples, 3 of 3 hard negatives).
+- Next step: more benign hard-negative training data, generated locally with Apertus.
+
+### Reproduce
+
+```bash
+python training/finetune.py
+MYXGUARD_MODEL_PATH=training/output/myxguard-xlm-roberta \
+  python scripts/benchmark.py datasets/eval/heldout.jsonl --eval --ml
 ```
 
 GitHub Actions runs pytest and the bundled benchmark on Python 3.9 and 3.12.
