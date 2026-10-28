@@ -322,7 +322,7 @@ def _export_onnx(model: object, tokenizer: object, output: Path, max_length: int
         def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
             return self.inner(input_ids=input_ids, attention_mask=attention_mask).logits
 
-    wrapped = _Logits(model)
+    wrapped = _Logits(model.to("cpu").float())
     wrapped.eval()
     dummy = tokenizer("hello", return_tensors="pt", truncation=True, max_length=max_length)
     onnx_path = output / "model.onnx"
