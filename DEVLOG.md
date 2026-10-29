@@ -1,8 +1,8 @@
-\# MyxGuard Devlog
+# MyxGuard Devlog
 
 
 
-\## 2026-10-28: First classifier, Apertus setup
+## 2026-10-28: First classifier, Apertus setup
 
 \*\*Done\*\*
 
@@ -32,117 +32,82 @@
 
 
 
-\## 2026-10-28 / 29: Dataset generator, baseline and second XLM-RoBERTa run
+## 2026-10-29: Extra data, first honest fresh test (v0.1)
 
-Status: work in progress, numbers below are from a small dev set and not final.
-
-
+**Status:** early stage (v0.1). Not usable as a real defence yet. All numbers below are from small test sets.
 
 > Written with AI assistance (Claude). I ran and checked everything myself.
 
-
-
-\### Goal
+### Goal
 
 A prompt-injection detector that works in German, French, Italian and English, free to download for anyone who wants to protect their own chatbot. Most existing tools and datasets are English-only, which is the gap this project targets.
 
+### What changed
 
-
-\### What changed
-
-
-
-\*\*1. Dataset generator (generate\_dataset.py, v1 → v6)\*\*
-
-
+**1. Dataset generator (`generate_dataset.py`, v1 → v7)**
 
 | Version | Change | Why |
-
 |---|---|---|
+| v1 → v2 | Benign class, hard negatives (harmless but suspicious-sounding), attack position start/middle/end, email/HTML/forward wrappers, dedup, fixed seed, `source` field | v1 had only "malicious" samples and always put the attack at the end, so a detector would learn the position instead of the attack |
+| v2 → v3 | Wrappers per language; hand-written intros for fr/it; no paraphrasing for fr/it | Apertus-8B produced broken Italian (mixed with Romansh) and German wrappers leaked into fr/it samples |
+| v3 → v4 | Train/test split by template; 6 templates per category for fr/it; `topic` is `null` for fr/it | The hash split left Italian with no test attacks; `topic` no longer matched the hand-written intros |
+| v4 → v5 | Polite, keyword-free attacks (train only); 8 normal benign sentences per language | The baseline only reacted to words like "ignore" |
+| v5 → v6 | Intros capped at 150 characters; 3 more data-exfiltration templates per language | Long generated intros buried the attack |
+| v6 → v7 | More attack phrasings and extra exfiltration templates | Exfiltration was still the weakest category |
 
-| v1 → v2 | Added a benign class, hard negatives (harmless but suspicious-sounding sentences), attack position at start/middle/end, email/HTML/forward wrappers, dedup, fixed seed, source field | v1 had only "malicious" samples and always put the attack at the end, so a detector would learn the position instead of the attack |
+**2. External data (`data_external.py`)**
+Added `yanismiraoui/prompt_injections` (attacks), `OpenAssistant/oasst2` and `CohereLabs/aya_dataset` (real human benign texts in de/fr/it/en), and English "talks about attacks" texts from `usezn/zn-prompt-injection-bench` as hard negatives. Part of the real benign texts is held back and never used for training, to measure false alarms on realistic text. The multilingual attacks in zn-bench are mostly plain harm requests, not prompt injections, so I excluded them. Sources and licences are listed in `external_attribution.txt`.
 
-| v2 → v3 | Wrappers per language; hand-written intros for fr/it; no paraphrasing for fr/it | Apertus-8B produced broken Italian (mixed with Romansh) and the German wrappers leaked into fr/it samples |
+**3. Models**
+- Baseline: TF-IDF (character n-grams) + logistic regression.
+- XLM-RoBERTa-base fine-tuned on own data + deepset train + external data.
 
-| v3 → v4 | Fixed train/test split by template; 6 templates per category for fr/it; topic is null for fr/it | The hash split left Italian with no test attacks; topic no longer matched the hand-written intros |
+**4. Fresh test set (`eval_fresh.py`, `make_fresh.py`)**
+160 new texts (80 attacks, 80 harmless incl. 28 hard negatives) in de/fr/it/en, kept apart from all training data.
 
-| v4 → v5 | Polite, keyword-free attacks (train only); 8 normal benign sentences per language | The baseline only reacted to words like "ignore" and missed social-engineering attacks |
+**5. Extra training data (v8, `make_extra.py`)**
+236 hand-written lines targeting the weak spots (exfiltration, hidden notes in reviews/mails, "two answers" personas) plus new hard negatives (role-play requests, "ignore the footnotes", questions that quote an attack sentence).
 
-| v5 → v6 | Intros capped at 150 characters; 3 more data-exfiltration templates per language | Long generated intros buried the attack; exfiltration was the weakest category |
+**6. Decision: role-play is not an attack**
+"Play a strict interview coach" is harmless. deepset labels some such prompts as attacks, which contradicts this. I now drop deepset training lines that look like role-play requests and contain no dangerous wording (no jailbreak/DAN/ignore/hack/password terms).
 
+### Results (XLM-RoBERTa, 3 seeds)
 
+| Test | Result |
+|---|---|
+| deepset test: attacks detected | 77–82 % at 0 % false alarms |
+| Real harmless text (oasst2/aya, held out) | 0.6–1.5 % blocked |
+| Fresh set: attacks detected | 50–60 % |
+| Fresh set: harmless blocked | 12.5–18.8 % |
+| Fresh set: data exfiltration detected | 36–46 % |
+| Fresh set: hard negatives blocked | 29–54 % |
 
-\*\*2. Baseline (baseline.py)\*\*
+Own test set: 79–93 % detected, 6–17 % false alarms. It is not meaningful any more (see below).
 
-TF-IDF (character n-grams) + logistic regression. Three variants (own data only, deepset only, both), each evaluated on two separate test sets: my own held-out templates and the deepset/prompt-injections test split. Also prints errors per language and category, and the strongest features.
+### What I learned
 
+- **Good deepset numbers do not mean it works.** The model catches deepset-style attacks (~80 %) but only about 55 % of polite, indirect ones on my fresh set.
+- **Seeds matter more than my changes.** Between seeds, the fresh-set attack rate swings by about 10 points and the hard-negative false alarms by about 20. The 236 extra lines and the role-play filter did not produce a change I can tell apart from noise.
+- **Small data drowns.** 236 hand-written lines next to thousands of other samples had little effect. More of the same is not the answer, more varied data is.
+- **Data can contradict itself.** deepset treats role-play requests as attacks, my target behaviour does not. A model cannot learn both.
+- **Test sets get used up.** After reading error lists, a test set is a dev set. The fresh set also shares attack ideas with my v8 training lines, so its numbers are optimistic. A third set with new attack ideas is needed for any final claim.
+- **The baseline was not detecting attacks.** Its strongest features were punctuation and word fragments, and it blocked most harmless text.
+- **Apertus is not usable for fr/it generation or Swiss German.** Swiss German templates will be written by hand later.
 
+### Known problems
 
-\*\*3. XLM-RoBERTa (train\_xlmr.py)\*\*
+- Detection of indirect attacks (exfiltration, hidden instructions) is far too low for real use.
+- Roughly a third of tricky harmless sentences (role-play, quoted attack phrases, "ignore the formatting") get blocked.
+- fr/it templates are written by me and not reviewed by native speakers.
+- Small test sets (20 attacks per language), so per-language differences are noise.
+- Template-based data and few human-written attacks.
+- A detector is not a complete defence. The README will say so.
 
-Fine-tuned xlm-roberta-base on own data + deepset train, same evaluation as the baseline.
+### Next
 
-
-
-\### What I learned
-
-\- Training only on my own templates does not transfer. On the deepset test set the own-data model dropped to 65% recall with 23% false alarms.
-
-\- The baseline was not detecting attacks. Its strongest features were punctuation and fragments like '. ' and ' all'. On my own test set it blocked most harmless text, because it reacts to words such as "forget" and "ignore" regardless of context.
-
-\- The own test set is optimistic. Intros and wrappers appear in both train and test, and only a handful of templates sit behind each number.
-
-\- Test set was used up. After reading the error lists I treat it as a dev set. A fresh test set with new templates is needed before publishing any final numbers.
-
-\- Apertus is not usable for Swiss German or fr/it generation. I will write Swiss German templates by hand later.
-
-\- These numbers are not comparable to the first benchmark (F1 0.949 on 370 held-out texts): different test sets and a harder setup with wrappers, positions and polite attacks.
-
-
-
-\### First results (dev set, small samples)
-
-
-
-| Metric | Baseline (both datasets) | XLM-RoBERTa (v5 data) |
-
-|---|---|---|
-
-| deepset test: attacks detected | 81.7% (n=60) | 90.0% (n=60) |
-
-| deepset test: harmless blocked | 0.0% (n=56) | 0.0% (n=56) |
-
-| own test: attacks detected | 86.1% (n=36) | 72.4% (n=29) |
-
-| own test: harmless blocked | 60.0% (n=20) | 4.5% (n=22) |
-
-
-
-Weak spots of XLM-RoBERTa: data exfiltration via social engineering (54.5%), German (57%), and polite attacks hidden in long harmless text. Per-language values rest on 5–10 samples each, so differences of 10–20 points are noise.
-
-
-
-\### Known problems
-
-\- fr/it templates are written by me and not yet reviewed by native speakers.
-
-\- Paraphrases (en/de only) can be grammatically off.
-
-\- Small test sets, template-based data, no real-world benign traffic in de/fr/it yet.
-
-\- A detector is not a complete defence. The README will say so.
-
-
-
-\### Next
-
-1\. Regenerate with v6, re-run XLM-RoBERTa, compare.
-
-2\. Write a fresh test set with unseen templates and do not touch it until the end.
-
-3\. Collect normal (benign) chat messages in de/fr/it to measure false alarms realistically.
-
-4\. Native-speaker review of fr/it/de templates.
-
-5\. Later: Swiss German as a fifth language, hand-written.
-
+1. Much more varied attack and hard-negative data, ideally written by different people and native speakers for fr/it/de.
+2. A third, untouched test set with new attack ideas, used once at the end.
+3. Try a probability threshold instead of the default cut-off, and report the trade-off between missed attacks and false alarms.
+4. Consider a larger multilingual model once the data is better.
+5. README with honest limits and licences (CC-BY-4.0 for zn-bench, Apache-2.0 for the others).
+6. Later: Swiss German as a fifth language, hand-written.
