@@ -39,7 +39,8 @@ Alle Checks unten liefen gegen `datasets/test_fresh/test_fresh.jsonl` mit sha256
 | — | Nur erlaubte Pfade geändert | pass | `git diff --stat 5cc31b5..HEAD`: nur `datasets/test_fresh/`, `reports/`, `scripts/`, `tests/test_fresh_*.py`, `plan.md`, `checks.md`, `progress.md`, `CLAUDE.md`, dazu `HARNESS.md` (Auftrag des Nutzers, nur committet) |
 | X1 | XLM-R ausgewertet, ohne Installation | pass | `../apertus/.venv` (torch 2.11.0+cu128, transformers 5.21.0, CUDA); `scripts/eval_test_fresh_xlmr.py` → `reports/raw/eval_xlmr_{de,en,fr,it}_2026-10-30.json` |
 | X1 | Leakage gegen die Trainingsdaten des Modells | pass | `reports/leakage_xlmr_2026-10-30.json`: 609 Zeilen gegen 7171 gesperrte Texte (zusätzlich dataset.jsonl, external_train.jsonl, external_benign_test.jsonl, deepset train und test), 0 Treffer |
-| X1 | Leakage gegen **alle** Trainingsdaten des Modells | unresolved | `extra_train.jsonl` (236 Zeilen, v8) fehlt, `make_extra.py` ist leer; nicht prüfbar, im Bericht als Lücke vermerkt |
+| X1 | Leakage gegen **alle** Trainingsdaten des Modells | pass | Nachprüfung 2026-10-30: `extra_train.jsonl` war nie im Training. Log «Externe Trainingsdaten: 2183» = Zeilen in `external_train.jsonl`; 154 + 546 + 2183 = 2883 = Log-Summe (1928 + 955); `make_extra.py` 0 Bytes, auch in Commit `9b3faea` von `myxguard-datagen`; alle Trainingsdateien älter als der Lauf (23:42:43) |
+| X1 | Welcher Seed | pass | Seed 3: `model.safetensors` und `log_train_3.txt` in derselben Sekunde geschrieben |
 | X1 | Cut-off nicht auf dem Test-Set gewählt | pass | argmax wie in `eval_fresh.py`; Test `test_xlmr_rows_use_argmax_not_a_threshold` |
 | X1 | Richtiges Modell, richtig geladen | pass | auf dem alten Fresh-Set 47/80 erkannt und 15/80 geblockt, innerhalb der DEVLOG-Spanne (50–60 % und 12.5–18.8 %) |
 | X1 | Lauf deterministisch | pass | zweiter Lauf: gleiche Entscheidungen, maximale Score-Differenz 0.0 |

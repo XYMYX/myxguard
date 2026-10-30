@@ -39,20 +39,20 @@
 - Far better than the rules, but it blocks harmless text, including 7 of 47 role-play requests. That breaks my own rule that role-play is harmless.
 - Exfiltration is still the weakest category (7–10 of 23).
 - Sanity check: on the old fresh set this model gives 47/80 attacks detected and 15/80 harmless blocked, inside my earlier 3-seed range.
-- **Caveat:** the model was also trained on `extra_train.jsonl` (236 hand-written v8 lines). That file is gone and `make_extra.py` is empty, so I could not check the new test rows against it. Same author, same weak spots, so these numbers may be too good.
-- Only one saved model (one seed). Seeds swung by about 10 points before.
+- Leakage check covered all data this model was trained on: 0 hits. The training log proves the v8 extra lines were not in it (see correction below).
+- Only one saved model (seed 3). Seeds swung by about 10 points before.
 
 ### What I learned
 
 - **The rules only know the phrasings they were written for.** On new wording, 66–68 of 70 attacks per language in de/fr/it get score 0: no rule fires at all. Indirect instructions inside emails, recipes or calendar invites, personas without words like "DAN", exfiltration through URLs and tools, and casual overrides all pass.
 - **Few false alarms mean nothing here.** The detector barely fires, so of course it rarely fires wrongly.
 - **Even classic "ignore your instructions" is weak:** 15 of 50 Gandalf prompts detected; 9 of the misses reach score 10, below the threshold.
-- **Keep every training file.** Losing `extra_train.jsonl` means I can no longer prove the test set is clean for the classifier.
+- **Check that extra data actually reaches training.** `make_extra.py` was empty, even in git, so `extra_train.jsonl` was never created. `train_xlmr.py` silently treats a missing file as empty. The log line "Zusatzdaten x5" looked fine, but 5 × 0 lines were added.
 - **Check new data against old test sets first.** Almost half my first batch was the old fresh set copied over. Without the leakage check the numbers would have been inflated by a used-up set.
 
 ### Known problems
 
-- XLM-R: leakage against the v8 extra lines could not be checked; one seed only.
+- XLM-R: one seed only.
 - XLM-R blocks harmless role-play requests (7 of 47).
 - Role-play target (15 per language) missed: 11–12.
 - Many role-play attacks share the same idea across the four languages: fairer language comparison, less variety.
@@ -64,4 +64,8 @@
 1. Treat this set as a dev set from now on.
 2. Rules alone will not cover indirect and polite attacks; the classifier is the main path.
 3. Classifier: more role-play hard negatives and more exfiltration attacks in training, then a new untouched test set.
-4. Keep every training file under version control so leakage can always be checked.
+4. Recreate the v8 lines (the script is gone) or drop the claim. Make `train_xlmr.py` fail on a missing data file instead of silently skipping it.
+
+### Correction to the 2026-10-29 entry
+
+The 236 v8 lines (`make_extra.py`) were never in training: the script is empty (also in git, commit `9b3faea`), so `extra_train.jsonl` was never written. `train_xlmr.py` skips a missing file without an error. All three seed logs show 2183 external rows, which is exactly `external_train.jsonl`, and 154 + 546 + 2183 = 2883 training rows. The statement "the 236 extra lines … did not produce a change I can tell apart from noise" is therefore not supported. The lines were not tested at all.

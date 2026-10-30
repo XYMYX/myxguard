@@ -67,6 +67,7 @@ Jeder Fehler und jede Korrektur bekommt hier eine Regel, damit es nicht wieder p
 - 2026-10-30: Ein Ergebnis, das stark von früheren Zahlen abweicht, wird zuerst gegengeprüft: dieselbe Pipeline auf einem bekannten Set gegen `scripts/benchmark.py`.
 - 2026-10-30: Das Test-Set `test_fresh` ist seit der Auswertung vom 2026-10-30 verbraucht und gilt nur noch als Dev-Set. Neue Aussagen brauchen ein neues, unberührtes Set.
 - 2026-10-30: Bei einem ML-Modell gilt der Leakage-Check erst als vollständig, wenn er gegen **alle** Trainingsdateien des Modells lief (aus dem Trainings-Script ablesen). Fehlt eine Datei (hier `extra_train.jsonl`), steht das als Lücke im Bericht, und die Zahlen gelten als möglicherweise zu gut.
+- 2026-10-30: Was wirklich im Training war, belegt das Trainings-Log (Zeilenzahlen), nicht das Trainings-Script. `train_xlmr.py` überspringt fehlende Dateien stillschweigend: `extra_train.jsonl` stand im Script, war aber nie im Training.
 - 2026-10-30: Für ein ML-Modell gilt immer der Standard-Cut-off (argmax), nie eine auf dem Test-Set gesuchte Schwelle. Vor dem Bericht: Gegenprobe auf einem bekannten Set gegen frühere Zahlen und ein zweiter Lauf auf Determinismus.
 - 2026-10-30: Die Untertypen (`roleplay` usw.) vergibt der Nutzer in der Quelldatei, nicht Claude per Augenmass, und zwar vor jeder Auswertung. Labels werden nach der Auswertung nie geändert.
 - 2026-10-30: hackaprompt steckt schon in train und heldout. Eine Quelle gilt erst als "unbenutzt", wenn `git grep <name> datasets/ training/` nichts findet.

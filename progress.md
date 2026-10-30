@@ -16,7 +16,7 @@ Stand: 2026-10-30, Abschluss inklusive XLM-R-Zusatz.
 | S7 Auswertung | erledigt, einmal, pro Sprache parallel |
 | S8 Bericht | erledigt: `reports/eval_2026-10-30.md`, Zahlen-Check 0 Probleme |
 | S9 Abschluss | erledigt: checks.md, DEVLOG-Entwurf |
-| X1 XLM-R-Zusatz | erledigt: gleiche Daten, argmax, ohne Installation (`../apertus/.venv`); Leakage-Lücke `extra_train.jsonl` |
+| X1 XLM-R-Zusatz | erledigt: gleiche Daten, argmax, ohne Installation (`../apertus/.venv`); Leakage vollständig (extra_train war nie im Training, per Log belegt) |
 
 ## Outputs
 
@@ -51,7 +51,7 @@ Stand: 2026-10-30, Abschluss inklusive XLM-R-Zusatz.
 
 1. `reports/third_party_notices_draft.md` in `THIRD_PARTY_NOTICES.md` übernehmen (Nutzer).
 2. `reports/devlog_draft.md` prüfen und in `DEVLOG.md` übernehmen (Nutzer).
-3. `extra_train.jsonl` (236 Zeilen v8) wiederfinden, falls möglich. Dann `check_leakage.py --block` damit nachholen. Bei Treffern muss der XLM-R-Teil neu bewertet werden.
+3. Die 236 v8-Zeilen gibt es nirgends: Repo, Git-Verlauf (lokal und GitHub), Papierkorb, VS-Code-/Cursor-Verlauf und Claude-Transkripte durchsucht. Sie waren in keinem Lauf vom 2026-10-29 im Training. Der DEVLOG-Eintrag vom 2026-10-29 behauptet dazu eine Wirkung, die nie getestet wurde. Korrektur steht im DEVLOG-Entwurf (Nutzer).
 4. `fresh_raw1.txt`/`fresh_raw2.txt` im Hauptordner sind nicht committet; Kopien liegen in `datasets/test_fresh/raw/`.
 5. Kein Push (nicht freigegeben).
 
