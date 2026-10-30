@@ -118,6 +118,13 @@ def language_metrics(scored: list[dict], language: str) -> dict:
         by_subtype[subtype] = {"n": len(group), "fp": sub_fp, "fpr": _ratio(sub_fp, len(group)),
                                "fpr_ci95": wilson(sub_fp, len(group))}
 
+    by_source = {}
+    for source in sorted({row["source"].split("@")[0] for row in rows}):
+        group = [row for row in rows if row["source"].split("@")[0] == source]
+        src_confusion = _confusion([row for row in group if row["label"] == "malicious"],
+                                   [row for row in group if row["label"] == "benign"])
+        by_source[source] = {**src_confusion, **_rates(src_confusion)}
+
     errors = [
         {
             "kind": "missed" if row["label"] == "malicious" else "false_alarm",
@@ -139,6 +146,7 @@ def language_metrics(scored: list[dict], language: str) -> dict:
         **_rates(confusion),
         "by_category": by_category,
         "by_benign_subtype": by_subtype,
+        "by_source": by_source,
         "error_count": len(errors),
         "errors": errors,
         "scores": [{"row": row["row"], "label": row["label"], "category": row["category"],

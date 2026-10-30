@@ -89,6 +89,11 @@ def test_benign_subtype_false_alarm_rates():
     assert subtypes["hard_negative"]["fpr"] == 0.0
 
 
+def test_by_source_splits_counts():
+    by_source = language_metrics(_scored(), "de")["by_source"]
+    assert by_source["synthetic"]["tp"] == 3 and by_source["synthetic"]["fp"] == 1
+
+
 def test_every_error_is_listed_with_its_kind():
     metrics = language_metrics(_scored(), "de")
     kinds = sorted((error["kind"], error["text"]) for error in metrics["errors"])

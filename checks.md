@@ -1,36 +1,40 @@
 # checks.md
 
-Stand: 2026-10-30. Urteil: pass, fail oder unresolved. Fehlende Belege bleiben sichtbar.
+Stand: 2026-10-30, Abschluss. Urteil: pass, fail oder unresolved. Fehlende Belege bleiben sichtbar.
+Alle Checks unten liefen gegen `datasets/test_fresh/test_fresh.jsonl` mit sha256 `242a68c227e01d0d…` (Commit `7570c3a`, unverändert seither).
 
 | Schritt | Anforderung | Urteil | Beleg |
 |---|---|---|---|
-| S0 | Sicherungs-Commit vor riskanten Änderungen | pass | lokaler Commit `ebb022a`, kein Push |
-| S1 | CLAUDE.md existiert und enthält jede Projektregel | pass | `python scripts/check_claude_md.py` → `rules 7/7`, Exit 0 |
-| S1 | CLAUDE.md listet jedes Script und jeden neuen Test | pass | dasselbe Script → `tools listed 6/6` |
-| S2 | Schema-Check lehnt fehlende Felder, falsche Werte und Zusatzfelder ab | pass | `tests/test_fresh_tools.py` (3 Schema-Tests) grün im Ersatz-Runner |
-| S2 | Leakage-Check erkennt exakte Kopien, Ein-Wort-Änderungen, Akzent-/Gross-Klein-Varianten und interne Duplikate; lässt fremden Text durch | pass | `tests/test_fresh_tools.py` (5 Leakage-Tests) grün im Ersatz-Runner: 8 passed, 0 failed |
-| S2 | Leakage-Check meldet bei leerem Set nicht "bestanden" | pass | `python scripts/check_leakage.py` → `0 rows in test_fresh: nothing checked`, Exit 1 |
-| S2 | Neue Tests laufen unter pytest | pass | pytest 8.4.2: Gesamtlauf `156 passed in 7.03s`, inklusive der 8 neuen Tests |
-| S2 | Leakage-Check läuft mit fremden Zeichen und mit Zeilen, die nach dem Normalisieren leer sind | pass | Korrekturversuch 1/3: `tests/test_fresh_tools.py` 9 passed; Lauf auf dem Gandalf-Rohpool ohne Absturz |
-| S3 | Externe Quelle geholt, Revision festgehalten | pass | `scripts/fetch_gandalf.py` → 1000 Zeilen (777/111/112 = erwartet), Revision `04737b65` vor und nach dem Download gleich (`raw/gandalf_ignore_instructions.meta.json`) |
-| S3 | Lizenz pro Quelle in SOURCES.md, mit Open Source vereinbar | pass | `datasets/test_fresh/SOURCES.md`: MIT laut Card; Notices-Entwurf in `reports/third_party_notices_draft.md` |
-| S3 | Quelle ist nicht im Training | pass | `git grep -i gandalf` in train/dev/eval/training: 0 Treffer; Leakage-Vorcheck: 0 Treffer gegen alle Sperrdateien |
-| S3 | Lizenz in THIRD_PARTY_NOTICES.md eingetragen | unresolved | Datei liegt ausserhalb der erlaubten Pfade; der Nutzer trägt den Entwurf ein |
-| S4 | Vorlagen für handgeschriebene Zeilen pro Sprache | pass | `datasets/test_fresh/handwritten_{de,fr,it,en}.jsonl` (leer) + `README.md`; `check_schema.py` Exit 0 |
-| S4 | Handgeschriebene Zeilen vorhanden, Format gültig | pass | `fresh_raw1.txt` (sha256 `e6070ede…`, Kopie in `raw/`): 360 Zeilen, 0 fehlerhafte Zeilen, 0 exakte Duplikate; `convert_fresh_raw.py` → 4 × 90 Zeilen |
-| S4 | Zielzahlen pro Sprache × Kategorie (A3) | fail | Nach dem Entfernen der Leak-Zeilen 23 Zellen unter dem Ziel: pro Sprache 8–9 Angriffe pro Kategorie (Ziel 15), 25 benign (Ziel 45), 1–2 roleplay (Ziel 15), 8–9 hard_negative (Ziel 15); siehe `build_report.json` |
-| S5 | test_fresh.jsonl gebaut, Schema grün | pass | Teil-Set: `build_test_fresh.py` → 50 Zeilen (nur Gandalf, en/instruction_override), sha256 `016de0110ab1…`; `check_schema.py` Exit 0 |
-| S5 | Zählungen im build_report = Zeilen in der Datei | pass | 50 = 50 = Summe von by_language_category |
-| S5 | Build ist reproduzierbar | pass | zweiter Lauf, gleicher sha256 `016de0110ab1` |
-| S5 | Alle 4 Sprachen × 4 Kategorien vorhanden | pass | 249 Zeilen, sha256 `277061e16a9b`; jede Zelle hat ≥ 8 Zeilen (`build_report.json`) |
-| S6 | Leak-Zeilen vor der Auswertung entfernt und gezählt (A5) | pass | 161 von 360 handgeschriebenen Zeilen entfernt: 160 exakt aus `../apertus/test_fresh.jsonl`, 1 jaccard aus `train.jsonl`; Liste in `datasets/test_fresh/removed_by_leakage.jsonl` |
-| S6 | Leakage-Check 0 Treffer auf der gespeicherten Version | pass | `check_leakage.py` → 249 Zeilen, 0 Treffer; `reports/leakage_2026-10-30.json` nennt sha256 `277061e16a9b…` |
-| S7 | Auswertungs-Script berechnet Confusion Matrix, P/R/F1, FPR, Werte pro Kategorie (one-vs-benign) und Untertyp sowie Wilson-Intervalle korrekt | pass | `tests/test_fresh_eval.py`: 10 passed auf synthetischen Zeilen mit von Hand ausgerechneten Werten |
-| S7 | Auswertung startet nicht ohne passenden Leakage-Bericht und nicht auf einem Teil-Set | pass | Tests `test_leakage_gate`, `test_coverage_gate_refuses_partial_set`; Lauf `eval_test_fresh.py --lang en` → 7× `refused`, Exit 1, keine Datei geschrieben |
-| S7 | Precision, Recall, F1 pro Sprache und pro Kategorie | unresolved | noch nicht ausgewertet |
-| S7 | Fehlalarm-Rate auf benign pro Sprache | unresolved | noch nicht ausgewertet |
-| S7 | Confusion Matrix | unresolved | noch nicht ausgewertet |
-| S7 | ≥ 10 Fehlbeispiele pro Sprache | unresolved | noch nicht ausgewertet |
-| S8 | Zahlen-Check erkennt eine falsche Zahl und einen fehlenden SHA-256 | pass | `test_report_numbers_must_come_from_raw_json` |
-| S8 | Zahlen im Bericht stimmen mit den Rohdaten überein | unresolved | noch kein Bericht |
-| S9 | Bestehende Tests (pytest) weiterhin grün | unresolved | Zwischenstand 2026-10-30: `python -m pytest -q` → 167 passed, Exit 0. Der Abschlusslauf nach S8 steht noch aus |
+| S0 | Sicherungs-Commit vor riskanten Änderungen | pass | lokaler Commit `ebb022a`, danach pro Etappe ein Commit; nie gepusht |
+| S1 | CLAUDE.md existiert und enthält jede Projektregel | pass | `python scripts/check_claude_md.py` → `rules 7/7` |
+| S1 | CLAUDE.md listet jedes Script und jeden neuen Test | pass | dasselbe Script → `tools listed 12/12` |
+| S2 | Schema-Check lehnt fehlende Felder, falsche Werte und Zusatzfelder ab | pass | `tests/test_fresh_tools.py` (3 Schema-Tests) |
+| S2 | Leakage-Check erkennt exakte Kopien, Ein-Wort-Änderungen, Akzent-/Gross-Klein-Varianten, interne Duplikate und nicht prüfbare Zeilen | pass | `tests/test_fresh_tools.py` (6 Leakage-Tests) |
+| S2 | Leakage-Check meldet bei leerem Set nicht "bestanden" | pass | Lauf auf leeren Vorlagen → Exit 1 (Korrektur, Regel in CLAUDE.md) |
+| S2 | Leakage-Check läuft mit fremden Zeichen auf der Windows-Konsole | pass | Korrekturversuch 1/3: `sys.stdout.reconfigure(errors="replace")`; Lauf auf dem Gandalf-Rohpool ohne Absturz |
+| S3 | Externe Quelle geholt, Revision festgehalten | pass | `scripts/fetch_gandalf.py` → 1000 Zeilen (777/111/112), Revision `04737b65` vor und nach dem Download gleich |
+| S3 | Lizenz pro Quelle notiert, mit Open Source vereinbar | pass | `datasets/test_fresh/SOURCES.md`: Gandalf MIT, handgeschrieben MIT |
+| S3 | Quelle nicht im Training | pass | `git grep -i gandalf` in train/dev/eval/training: 0; Leakage-Vorcheck 0 Treffer gegen alle Sperrdateien |
+| S3 | Lizenz in THIRD_PARTY_NOTICES.md eingetragen | unresolved | Datei liegt ausserhalb der erlaubten Pfade; Entwurf in `reports/third_party_notices_draft.md`, der Nutzer trägt ihn ein |
+| S4 | Handgeschriebene Zeilen vorhanden, Format gültig | pass | `fresh_raw1.txt` (sha256 `e6070ede…`) + `fresh_raw2.txt` (`a2c79a3e…`), je 360 Zeilen, 0 fehlerhafte Zeilen; Kopien in `datasets/test_fresh/raw/` |
+| S4 | Von Menschen geschrieben, nicht von einem Modell | pass | Angabe des Nutzers am 2026-10-30 (fresh_raw2: «Ich selbst»). Nicht technisch prüfbar |
+| S4 | Zielzahlen pro Sprache × Kategorie (A3) | fail | 4 von 28 Zellen unter dem Ziel: roleplay de 11, en/fr/it 12 (Ziel 15). Alle anderen Zellen erfüllt (`build_report.json`) |
+| S5 | test_fresh.jsonl gebaut, Schema grün | pass | 609 Zeilen; `check_schema.py` → 0 Fehler |
+| S5 | Zählungen im build_report = Zeilen in der Datei | pass | 609 = Summe von `by_language_category` |
+| S5 | Alle 4 Sprachen × 4 Kategorien vorhanden | pass | jede Zelle ≥ 23 Zeilen |
+| S6 | Leak-Zeilen vor der Auswertung entfernt und gezählt (A5) | pass | 161 von 720 handgeschriebenen Zeilen entfernt (160 exakt aus dem alten Fresh-Set, 1 jaccard aus train), Liste in `datasets/test_fresh/removed_by_leakage.jsonl` |
+| S6 | Leakage-Check 0 Treffer auf der gespeicherten Version | pass | `check_leakage.py` → 609 Zeilen, 0 Treffer; `reports/leakage_2026-10-30.json` nennt sha256 `242a68c2…` |
+| S7 | Auswertung startet nur mit passendem Leakage-Bericht und vollständigem Set | pass | Tests `test_leakage_gate`, `test_coverage_gate_refuses_partial_set`; Probelauf auf dem Teil-Set → 7× `refused` |
+| S7 | Auswertungs-Pipeline korrekt | pass | 11 Tests auf synthetischen Zeilen; Gegenprobe auf heldout: 79/186, Recall 0.425, 0 FP, identisch mit `scripts/benchmark.py` |
+| S7 | Precision, Recall, F1 pro Sprache und pro Kategorie | pass | `reports/raw/eval_{de,en,fr,it}_2026-10-30.json`; Tabellen in `reports/eval_2026-10-30.md` |
+| S7 | Fehlalarm-Rate auf harmlosen Texten pro Sprache | pass | de 1.4 %, en/fr/it 0.0 % (je n=70), dazu pro Untertyp |
+| S7 | Confusion Matrix | pass | pro Sprache im Bericht und in den Roh-JSONs (`confusion`) |
+| S7 | ≥ 10 Fehlbeispiele pro Sprache | pass | 10 pro Sprache im Bericht, nach fester Regel ausgewählt; alle Fehler (de 70, en 100, fr 69, it 70) in den Roh-JSONs |
+| S7 | Nachträgliche Ergänzung `by_source` ändert keine Werte | pass | Vergleich erster/zweiter Lauf: alle Felder ausser `by_source` identisch |
+| S8 | Tabellenzahlen stimmen mit den Rohdaten überein | pass | `check_report_numbers.py reports/eval_2026-10-30.md` → 0 Probleme |
+| S8 | Zahlen im Fliesstext stimmen | pass | Prüfung per Script gegen die Roh-JSONs; 1 Fehler gefunden und korrigiert («67–68» → «66–68»), Regel in CLAUDE.md |
+| S8 | Alle Zahlen berichtet, auch die schlechten | pass | Bericht und DEVLOG-Entwurf nennen pro Sprache Recall 0.0–16.0 %, Datenabfluss 0 von 23, Gandalf getrennt |
+| S9 | Bestehende Tests (pytest) weiterhin grün | pass | `python -m pytest -q` → 168 passed, Exit 0 (156 bestehende + 12 neue) |
+| S9 | DEVLOG-Entwurf erstellt, nicht eingetragen | pass | `reports/devlog_draft.md`; `DEVLOG.md` unverändert (`git status`) |
+| — | Nur erlaubte Pfade geändert | pass | `git diff --stat 5cc31b5..HEAD`: nur `datasets/test_fresh/`, `reports/`, `scripts/`, `tests/test_fresh_*.py`, `plan.md`, `checks.md`, `progress.md`, `CLAUDE.md`, dazu `HARNESS.md` (Auftrag des Nutzers, nur committet) |
+| — | XLM-R-Modell ausgewertet | unresolved | nicht Teil des Plans (A1); kein Modell im Repo, torch nicht installiert |
