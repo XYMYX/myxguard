@@ -8,7 +8,7 @@ Stand: 2026-10-30, nach Etappe 5 (Auswertungs- und Bericht-Check vorbereitet).
 |---|---|
 | S0 Sicherungs-Commit | erledigt (`ebb022a`, lokal) |
 | S1 CLAUDE.md | erledigt |
-| S2 Schema-/Leakage-Check + Tests | erledigt; pytest 157 passed |
+| S2 Schema-/Leakage-Check + Tests | erledigt; pytest 167 passed (Gesamtsuite) |
 | S3 Externe Quellen | erledigt. Offen: Eintrag in THIRD_PARTY_NOTICES.md (Nutzer) |
 | S4 Handgeschriebene Zeilen | blockiert: der Nutzer schreibt de/fr/it/en |
 | S5 Build | Script fertig; Teil-Set mit 50 Gandalf-Zeilen gebaut. Vollständiger Build wartet auf S4 |
