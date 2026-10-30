@@ -34,7 +34,16 @@ Alle Checks unten liefen gegen `datasets/test_fresh/test_fresh.jsonl` mit sha256
 | S8 | Tabellenzahlen stimmen mit den Rohdaten überein | pass | `check_report_numbers.py reports/eval_2026-10-30.md` → 0 Probleme |
 | S8 | Zahlen im Fliesstext stimmen | pass | Prüfung per Script gegen die Roh-JSONs; 1 Fehler gefunden und korrigiert («67–68» → «66–68»), Regel in CLAUDE.md |
 | S8 | Alle Zahlen berichtet, auch die schlechten | pass | Bericht und DEVLOG-Entwurf nennen pro Sprache Recall 0.0–16.0 %, Datenabfluss 0 von 23, Gandalf getrennt |
-| S9 | Bestehende Tests (pytest) weiterhin grün | pass | `python -m pytest -q` → 168 passed, Exit 0 (156 bestehende + 12 neue) |
+| S9 | Bestehende Tests (pytest) weiterhin grün | pass | `python -m pytest -q` → 169 passed, Exit 0 (156 bestehende + 13 neue) |
 | S9 | DEVLOG-Entwurf erstellt, nicht eingetragen | pass | `reports/devlog_draft.md`; `DEVLOG.md` unverändert (`git status`) |
 | — | Nur erlaubte Pfade geändert | pass | `git diff --stat 5cc31b5..HEAD`: nur `datasets/test_fresh/`, `reports/`, `scripts/`, `tests/test_fresh_*.py`, `plan.md`, `checks.md`, `progress.md`, `CLAUDE.md`, dazu `HARNESS.md` (Auftrag des Nutzers, nur committet) |
-| — | XLM-R-Modell ausgewertet | unresolved | nicht Teil des Plans (A1); kein Modell im Repo, torch nicht installiert |
+| X1 | XLM-R ausgewertet, ohne Installation | pass | `../apertus/.venv` (torch 2.11.0+cu128, transformers 5.21.0, CUDA); `scripts/eval_test_fresh_xlmr.py` → `reports/raw/eval_xlmr_{de,en,fr,it}_2026-10-30.json` |
+| X1 | Leakage gegen die Trainingsdaten des Modells | pass | `reports/leakage_xlmr_2026-10-30.json`: 609 Zeilen gegen 7171 gesperrte Texte (zusätzlich dataset.jsonl, external_train.jsonl, external_benign_test.jsonl, deepset train und test), 0 Treffer |
+| X1 | Leakage gegen **alle** Trainingsdaten des Modells | unresolved | `extra_train.jsonl` (236 Zeilen, v8) fehlt, `make_extra.py` ist leer; nicht prüfbar, im Bericht als Lücke vermerkt |
+| X1 | Cut-off nicht auf dem Test-Set gewählt | pass | argmax wie in `eval_fresh.py`; Test `test_xlmr_rows_use_argmax_not_a_threshold` |
+| X1 | Richtiges Modell, richtig geladen | pass | auf dem alten Fresh-Set 47/80 erkannt und 15/80 geblockt, innerhalb der DEVLOG-Spanne (50–60 % und 12.5–18.8 %) |
+| X1 | Lauf deterministisch | pass | zweiter Lauf: gleiche Entscheidungen, maximale Score-Differenz 0.0 |
+| X1 | Metriken, Fehlalarm-Raten, Confusion Matrix, ≥ 10 Fehlbeispiele pro Sprache | pass | Abschnitt «Zusatz: XLM-R» in `reports/eval_2026-10-30.md`; Fehler de 24, en 25, fr 30, it 31, je 10 gezeigt |
+| X1 | Rollenspiel-Bitten nicht geblockt (Projektregel) | fail | XLM-R blockt 7 von 47 (de 2/11, en 3/12, fr 1/12, it 1/12). Das ist ein Befund über das Modell, kein Fehler der Auswertung |
+| X1 | Zahlen im Bericht | pass | `check_report_numbers.py` → 0 Probleme gegen 8 Roh-Dateien; Fliesstext per Script geprüft (8/8 OK) |
+| X1 | Regel-Tabellen durch den Zusatz unverändert | pass | neu erzeugte Regel-Tabellen byte-gleich mit der früheren Fassung (`diff -q`) |

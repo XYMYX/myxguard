@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-30",
+  "checked": {
+    "datasets/test_fresh/test_fresh.jsonl": "242a68c227e01d0d2adc31450a4c0ac994427794e8da031fd701c202f3de2236"
+  },
+  "blocked": {
+    "datasets/train/train.jsonl": {
+      "sha256": "795a4070b9bdfa8e61972e7c9a522e377902e59c2db6f8fb0e11e5bafe5fa956",
+      "rows": 2576
+    },
+    "datasets/dev/dev.jsonl": {
+      "sha256": "9fbc9c9165060028c7812565b9fdf6ce305b25b3fa40a92d177896335584fe10",
+      "rows": 113
+    },
+    "datasets/eval/heldout.jsonl": {
+      "sha256": "a01ab2166ea8818438b19f38fe669ebed5ec04d3a45d058005168749a74bc88f",
+      "rows": 370
+    },
+    "datasets/samples.jsonl": {
+      "sha256": "b2b80682dc2d1083f4cd5bbb6fc8f80c65388de9e4a848622d01f4d72f5fab9e",
+      "rows": 99
+    },
+    "datasets/deepset_sample.jsonl": {
+      "sha256": "6facc2d694689353a61ea10e7aeb85c2d5a9685eaba318344450b31658cef0a2",
+      "rows": 8
+    },
+    "C:/Users/User/Desktop/apertus/test_fresh.jsonl": {
+      "sha256": "f3c13c89eeff1d37ffb8c9253c46076208689568499041a297dfd119f7651be0",
+      "rows": 160
+    },
+    "../apertus/dataset.jsonl": {
+      "sha256": "f6b76236bb09988856ee3043d56ebfe17f0f55d8d8b6792845df7eefb66494f3",
+      "rows": 200
+    },
+    "../apertus/external_train.jsonl": {
+      "sha256": "ffd9b7d3b77bbfcbde548bdec384349dc503440b6cf9fa1961b781906266e8e1",
+      "rows": 2183
+    },
+    "../apertus/external_benign_test.jsonl": {
+      "sha256": "1a56abd8040ffce974e0d2759cd60cf725a948e01b8e70421dfba1212e03c1c8",
+      "rows": 800
+    },
+    "C:/Users/User/AppData/Local/Temp/claude/C--Users-User-Desktop-myxguard-repo/b6b6f0aa-0880-4fde-a1d4-b621d89b5c74/scratchpad/deepset_train.jsonl": {
+      "sha256": "6deae5f72d7078c93416f17909120347d8f66d192fadd76e0dc4904ebac2696a",
+      "rows": 546
+    },
+    "C:/Users/User/AppData/Local/Temp/claude/C--Users-User-Desktop-myxguard-repo/b6b6f0aa-0880-4fde-a1d4-b621d89b5c74/scratchpad/deepset_test.jsonl": {
+      "sha256": "3379338bc8423e3f9b8e36075a303b8681fb2f31b3f0bc7454c7ad953bb896f1",
+      "rows": 116
+    }
+  },
+  "rows_checked": 609,
+  "hits": []
+}

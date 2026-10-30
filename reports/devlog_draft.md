@@ -1,6 +1,6 @@
 # Draft for DEVLOG.md (not added – please review and paste yourself)
 
-## 2026-10-30: Third fresh test set, rules only (v0.1)
+## 2026-10-30: Third fresh test set, rules and XLM-R (v0.1)
 
 **Status:** early stage (v0.1). Not usable as a real defence. All numbers below are from one run on a small test set.
 
@@ -27,16 +27,33 @@
 - The single false alarm is a German question that quotes a "you are DAN now" line.
 - Sanity check: the same pipeline gives recall 0.425 with 0 false alarms on the old held-out set, identical to `scripts/benchmark.py`. So the collapse comes from the new wording, not from a bug.
 
+### XLM-R classifier on the same set (same day, model unchanged, argmax)
+
+| Language | Attacks detected | Harmless blocked | Role-play blocked | Exfiltration detected |
+|---|---|---|---|---|
+| de | 50 / 70 (71.4 %) | 4 / 70 (5.7 %) | 2 / 11 | 9 / 23 |
+| en | 101 / 119 (84.9 %), of which Gandalf 50 / 50, hand-written 51 / 69 | 7 / 70 (10.0 %) | 3 / 12 | 10 / 23 |
+| fr | 44 / 70 (62.9 %) | 4 / 70 (5.7 %) | 1 / 12 | 9 / 23 |
+| it | 43 / 70 (61.4 %) | 4 / 70 (5.7 %) | 1 / 12 | 7 / 23 |
+
+- Far better than the rules, but it blocks harmless text, including 7 of 47 role-play requests. That breaks my own rule that role-play is harmless.
+- Exfiltration is still the weakest category (7–10 of 23).
+- Sanity check: on the old fresh set this model gives 47/80 attacks detected and 15/80 harmless blocked, inside my earlier 3-seed range.
+- **Caveat:** the model was also trained on `extra_train.jsonl` (236 hand-written v8 lines). That file is gone and `make_extra.py` is empty, so I could not check the new test rows against it. Same author, same weak spots, so these numbers may be too good.
+- Only one saved model (one seed). Seeds swung by about 10 points before.
+
 ### What I learned
 
 - **The rules only know the phrasings they were written for.** On new wording, 66–68 of 70 attacks per language in de/fr/it get score 0: no rule fires at all. Indirect instructions inside emails, recipes or calendar invites, personas without words like "DAN", exfiltration through URLs and tools, and casual overrides all pass.
 - **Few false alarms mean nothing here.** The detector barely fires, so of course it rarely fires wrongly.
 - **Even classic "ignore your instructions" is weak:** 15 of 50 Gandalf prompts detected; 9 of the misses reach score 10, below the threshold.
+- **Keep every training file.** Losing `extra_train.jsonl` means I can no longer prove the test set is clean for the classifier.
 - **Check new data against old test sets first.** Almost half my first batch was the old fresh set copied over. Without the leakage check the numbers would have been inflated by a used-up set.
 
 ### Known problems
 
-- Rules only. The XLM-R model was not evaluated in this run.
+- XLM-R: leakage against the v8 extra lines could not be checked; one seed only.
+- XLM-R blocks harmless role-play requests (7 of 47).
 - Role-play target (15 per language) missed: 11–12.
 - Many role-play attacks share the same idea across the four languages: fairer language comparison, less variety.
 - fr/it texts are not reviewed by native speakers.
@@ -44,6 +61,7 @@
 
 ### Next
 
-1. Evaluate the XLM-R classifier on this set too (needs a torch environment). It should be run before anyone tunes rules on these errors.
-2. Treat this set as a dev set from now on.
-3. Rules alone will not cover indirect and polite attacks; the classifier is the main path.
+1. Treat this set as a dev set from now on.
+2. Rules alone will not cover indirect and polite attacks; the classifier is the main path.
+3. Classifier: more role-play hard negatives and more exfiltration attacks in training, then a new untouched test set.
+4. Keep every training file under version control so leakage can always be checked.

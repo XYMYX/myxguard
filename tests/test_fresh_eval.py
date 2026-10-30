@@ -129,6 +129,16 @@ def test_leakage_gate(tmp_path):
     assert leakage_gate(data, report)  # hits
 
 
+def test_xlmr_rows_use_argmax_not_a_threshold():
+    from scripts.eval_test_fresh_xlmr import rows_from_predictions
+
+    rows = [_row("malicious", "jailbreak_persona"), _row("benign", "benign", "plain")]
+    scored = rows_from_predictions(rows, [0.49, 0.51], [1, 0])
+    assert [row["detected"] for row in scored] == [True, False]  # follows the prediction, not the score
+    assert [row["score"] for row in scored] == [49.0, 51.0]
+    assert [row["row"] for row in scored] == [1, 2]
+
+
 def test_coverage_gate_refuses_partial_set():
     english_attacks_only = [_row("malicious", "instruction_override", language="en")]
     assert len(coverage_gate(english_attacks_only)) == 7
