@@ -4,13 +4,14 @@
 Format as in training/experiments/make_fresh.py. Attack categories stay as
 they are. Benign categories become ``category: benign`` with the subtype in
 ``note``: ``normal``/``plain`` -> ``plain``, ``hard_negative``, ``roleplay``.
+Several source files are read in order and written together.
 Lines starting with ``#`` and empty lines are skipped. Any other malformed
 line stops the run, so nothing is dropped silently. ``--dry-run`` prints the
 counts without writing.
 
 Example::
 
-    python scripts/convert_fresh_raw.py datasets/test_fresh/raw/fresh_raw1.txt
+    python scripts/convert_fresh_raw.py datasets/test_fresh/raw/fresh_raw1.txt datasets/test_fresh/raw/fresh_raw2.txt
 """
 
 from __future__ import annotations
@@ -55,18 +56,19 @@ def parse_line(line: str) -> dict:
 def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(description="Convert hand-written fresh lines to JSONL.")
-    parser.add_argument("source", type=Path)
+    parser.add_argument("sources", nargs="+", type=Path, help="One or more files, e.g. raw/fresh_raw1.txt raw/fresh_raw2.txt")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 
     rows, errors = [], []
-    for number, line in enumerate(args.source.read_text(encoding="utf-8-sig").splitlines(), 1):
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        try:
-            rows.append(parse_line(line))
-        except ValueError as exc:
-            errors.append(f"line {number}: {exc}")
+    for source in args.sources:
+        for number, line in enumerate(source.read_text(encoding="utf-8-sig").splitlines(), 1):
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            try:
+                rows.append(parse_line(line))
+            except ValueError as exc:
+                errors.append(f"{source.name} line {number}: {exc}")
     for error in errors:
         print(error)
     if errors:

@@ -1,6 +1,6 @@
 # progress.md
 
-Stand: 2026-10-30, nach Etappe 6 (handgeschriebene Zeilen, Leak-Bereinigung). Auswertung noch nicht gelaufen.
+Stand: 2026-10-30, nach Etappe 7. Entscheidung: erst Ersatz-Zeilen schreiben, dann auswerten. Auswertung noch nicht gelaufen.
 
 ## Plan
 
@@ -38,7 +38,18 @@ Stand: 2026-10-30, nach Etappe 6 (handgeschriebene Zeilen, Leak-Bereinigung). Au
 
 ## Offene Punkte
 
-0. **Entscheidung vor S7:** jetzt mit 8–9 Angriffen pro Kategorie und Sprache auswerten (verbraucht die 199 neuen Zeilen), oder erst die 160 alten Zeilen durch neue ersetzen.
+0. **Entschieden (2026-10-30): erst ersetzen.** Der Nutzer schreibt neue Zeilen in `fresh_raw2.txt` (gleiches Format `sprache|label|kategorie|text`, benign-Kategorien `normal`, `hard_negative`, `roleplay`). Nicht aus dem alten Fresh-Set oder aus fresh_raw1 übernehmen. Fehlend bis zum Ziel (nach dem Entfernen der Leaks):
+
+| Zelle | de | en | fr | it |
+|---|---:|---:|---:|---:|
+| instruction_override | 7 | 0 | 7 | 7 |
+| data_exfiltration | 7 | 7 | 7 | 7 |
+| jailbreak_persona | 6 | 7 | 6 | 6 |
+| benign/roleplay | 14 | 13 | 13 | 13 |
+| benign/hard_negative | 6 | 7 | 7 | 7 |
+| **Summe** | **40** | **34** | **40** | **40** |
+
+   Danach: Kopie nach `datasets/test_fresh/raw/fresh_raw2.txt`, `python scripts/convert_fresh_raw.py datasets/test_fresh/raw/fresh_raw1.txt datasets/test_fresh/raw/fresh_raw2.txt`, Build, Schema, Leakage, dann einmal S7.
 
 1. Handgeschriebene Zeilen: 23 Zellen liegen unter dem Ziel (siehe `datasets/test_fresh/build_report.json`). en/instruction_override ist durch Gandalf schon gedeckt.
 2. Den Entwurf aus `reports/third_party_notices_draft.md` in `THIRD_PARTY_NOTICES.md` übernehmen (Nutzer).
