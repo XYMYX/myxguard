@@ -1,6 +1,6 @@
 # progress.md
 
-Stand: 2026-10-30, nach Etappe 4 (Gandalf-Entscheidung, Build-Script, Teil-Set).
+Stand: 2026-10-30, nach Etappe 5 (Auswertungs- und Bericht-Check vorbereitet).
 
 ## Plan
 
@@ -13,7 +13,9 @@ Stand: 2026-10-30, nach Etappe 4 (Gandalf-Entscheidung, Build-Script, Teil-Set).
 | S4 Handgeschriebene Zeilen | blockiert: der Nutzer schreibt de/fr/it/en |
 | S5 Build | Script fertig; Teil-Set mit 50 Gandalf-Zeilen gebaut. Vollständiger Build wartet auf S4 |
 | S6 Leakage | Teil-Set 0 Treffer; muss nach S4 neu laufen |
-| S7 bis S9 | wartet; bewusst keine Auswertung auf dem Teil-Set |
+| S7 Auswertung | Script + Tests fertig (`scripts/eval_test_fresh.py`); verweigert das Teil-Set; noch nie auf test_fresh gelaufen |
+| S8 Bericht | Zahlen-Check fertig (`scripts/check_report_numbers.py`); Bericht wartet auf S7 |
+| S9 | wartet |
 
 ## Outputs
 
@@ -41,4 +43,4 @@ Stand: 2026-10-30, nach Etappe 4 (Gandalf-Entscheidung, Build-Script, Teil-Set).
 
 ## Nächste Aktion
 
-Sobald die Zeilen da sind: `python scripts/build_test_fresh.py` → `python scripts/check_schema.py` → `python scripts/check_leakage.py` → S7 (`scripts/eval_test_fresh.py`, pro Sprache parallel, das Script muss noch geschrieben werden) → S8 → S9.
+Sobald die Zeilen da sind: `python scripts/build_test_fresh.py` → `python scripts/check_schema.py` → `python scripts/check_leakage.py` → S7 `python scripts/eval_test_fresh.py --lang <xx>` (de/fr/it/en parallel) → S8 Bericht `reports/eval_<datum>.md` + `python scripts/check_report_numbers.py reports/eval_<datum>.md` → S9.

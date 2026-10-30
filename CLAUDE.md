@@ -43,8 +43,9 @@ Pflichtfelder in jeder Zeile, wie in train/dev/eval: `text`, `label` (`malicious
 | `scripts/fetch_gandalf.py` | Lädt `Lakera/gandalf_ignore_instructions` als JSON nach `datasets/test_fresh/raw/` und hält die Revision fest. Nur mit Download-Freigabe. | aktiv |
 | `tests/test_fresh_tools.py` | Tests für den Schema- und den Leakage-Check | aktiv |
 | `scripts/build_test_fresh.py` | Baut `datasets/test_fresh/test_fresh.jsonl` und `build_report.json`: Gandalf-Stichprobe (50, Seed 20261030) plus handgeschriebene Zeilen. Führt den Detektor nie aus. | aktiv |
-| `scripts/eval_test_fresh.py` | Auswertung pro Sprache | geplant (S7) |
-| `scripts/check_report_numbers.py` | Prüft die Zahlen im Bericht gegen die Rohdaten | geplant (S8) |
+| `scripts/eval_test_fresh.py` | Auswertung pro Sprache (`--lang de|fr|it|en|all`) → `reports/raw/eval_<lang>_<datum>.json`. Schwelle fest 25. Läuft nur, wenn der Leakage-Bericht den aktuellen SHA-256 mit 0 Treffern nennt **und** jede Sprache Angriffe und benign-Zeilen hat. | aktiv, noch nie auf test_fresh gelaufen |
+| `scripts/check_report_numbers.py` | Prüft jede Zahl in den Tabellen von `reports/eval_<datum>.md` gegen die Roh-JSONs und ob der Bericht den SHA-256 des Sets nennt. Fliesstext prüft es nicht, und eine falsche Zahl, die zufällig einem anderen Rohwert gleicht, fällt nicht auf. | aktiv |
+| `tests/test_fresh_eval.py` | Tests für Metriken, Wilson-Intervall, beide Gates und den Zahlen-Check, nur auf synthetischen Zeilen | aktiv |
 
 Gesamte Suite: `python -m pytest -q`. Im Moment ist pytest nicht installiert (Blocker B5).
 
@@ -56,5 +57,6 @@ Jeder Fehler und jede Korrektur bekommt hier eine Regel, damit es nicht wieder p
 - 2026-10-30: Der Leakage-Check ist auf der Windows-Konsole (cp1252) beim Ausgeben fremder Zeichen abgestürzt. Scripts, die Fremdtext ausgeben, setzen `sys.stdout.reconfigure(errors="replace")`.
 - 2026-10-30: Eine Zeile, die nach dem Normalisieren leer ist (z. B. nur chinesische Schrift), wurde als Treffer "gegen train.jsonl" gemeldet. Solche Zeilen heissen jetzt `unchecked` und zählen weiter als Treffer, nie als sauber.
 - 2026-10-30: Wenn der Leakage-Check die gebaute Datei und die Quelldateien zusammen prüft, meldet er jede Zeile als Duplikat ihrer selbst. Sobald `test_fresh.jsonl` existiert, prüft er nur diese Datei.
-- 2026-10-30: Ausgewertet wird das Test-Set erst, wenn alle vier Sprachen da sind, und nur einmal. Kein Zwischenlauf auf einem Teil-Set.
+- 2026-10-30: Ausgewertet wird das Test-Set erst, wenn alle vier Sprachen da sind, und nur einmal. Kein Zwischenlauf auf einem Teil-Set. Seit 2026-10-30 erzwingt das `coverage_gate` in `eval_test_fresh.py`; vorher hätte das Leakage-Gate das Teil-Set durchgelassen.
+- 2026-10-30: Tests lesen nie `test_fresh.jsonl`. Ein Test, der vom aktuellen Stand des Sets abhängt, wird rot, sobald das Set fertig ist, und würde das Set nebenbei ansehen.
 - 2026-10-30: hackaprompt steckt schon in train und heldout. Eine Quelle gilt erst als "unbenutzt", wenn `git grep <name> datasets/ training/` nichts findet.

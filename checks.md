@@ -23,9 +23,12 @@ Stand: 2026-10-30. Urteil: pass, fail oder unresolved. Fehlende Belege bleiben s
 | S5 | Build ist reproduzierbar | pass | zweiter Lauf, gleicher sha256 `016de0110ab1` |
 | S5 | Alle 4 Sprachen × 4 Kategorien vorhanden | fail | 23 Zellen unter dem Ziel; nur en/instruction_override hat Zeilen. Wartet auf die handgeschriebenen Zeilen (kein Fix durch Claude möglich) |
 | S6 | Leakage-Check 0 Treffer auf der gespeicherten Version | unresolved | Teil-Set: 0 Treffer auf sha256 `016de0110ab1` (`reports/leakage_2026-10-30.json`). Muss auf dem vollständigen Set neu laufen |
+| S7 | Auswertungs-Script berechnet Confusion Matrix, P/R/F1, FPR, Werte pro Kategorie (one-vs-benign) und Untertyp sowie Wilson-Intervalle korrekt | pass | `tests/test_fresh_eval.py`: 10 passed auf synthetischen Zeilen mit von Hand ausgerechneten Werten |
+| S7 | Auswertung startet nicht ohne passenden Leakage-Bericht und nicht auf einem Teil-Set | pass | Tests `test_leakage_gate`, `test_coverage_gate_refuses_partial_set`; Lauf `eval_test_fresh.py --lang en` → 7× `refused`, Exit 1, keine Datei geschrieben |
 | S7 | Precision, Recall, F1 pro Sprache und pro Kategorie | unresolved | noch nicht ausgewertet |
 | S7 | Fehlalarm-Rate auf benign pro Sprache | unresolved | noch nicht ausgewertet |
 | S7 | Confusion Matrix | unresolved | noch nicht ausgewertet |
 | S7 | ≥ 10 Fehlbeispiele pro Sprache | unresolved | noch nicht ausgewertet |
-| S8 | Zahlen im Bericht stimmen mit den Rohdaten überein | unresolved | noch nicht begonnen |
-| S9 | Bestehende Tests (pytest) weiterhin grün | unresolved | Zwischenstand 2026-10-30: `python -m pytest -q` → 156 passed, Exit 0. Der Abschlusslauf nach S8 steht noch aus |
+| S8 | Zahlen-Check erkennt eine falsche Zahl und einen fehlenden SHA-256 | pass | `test_report_numbers_must_come_from_raw_json` |
+| S8 | Zahlen im Bericht stimmen mit den Rohdaten überein | unresolved | noch kein Bericht |
+| S9 | Bestehende Tests (pytest) weiterhin grün | unresolved | Zwischenstand 2026-10-30: `python -m pytest -q` → 167 passed, Exit 0. Der Abschlusslauf nach S8 steht noch aus |
