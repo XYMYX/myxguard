@@ -1,7 +1,7 @@
 {
   "date": "2026-10-30",
   "checked": {
-    "datasets/test_fresh/test_fresh.jsonl": "016de0110ab1145e173912a4ff2176e1aeaa96f9e520eece421523b3b745caf2"
+    "datasets/test_fresh/test_fresh.jsonl": "277061e16a9b5630f1410983dd61cec1dfb033b76b10f2144c1290c790dd7e4c"
   },
   "blocked": {
     "datasets/train/train.jsonl": {
@@ -29,6 +29,6 @@
       "rows": 160
     }
   },
-  "rows_checked": 50,
+  "rows_checked": 249,
   "hits": []
 }

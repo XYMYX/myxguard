@@ -5,7 +5,9 @@ Gandalf: drop rows that the leakage check would flag (blocked files, near-
 duplicates inside the pool, text that normalizes to nothing), then draw a
 fixed sample with ``random.Random(20261030)``. Every row becomes
 ``instruction_override`` in English. The detector is never run here.
-Hand-written rows from ``handwritten_<lang>.jsonl`` are copied as they are.
+Hand-written rows from ``handwritten_<lang>.jsonl`` are copied as they are,
+except rows the leakage check flags (plan A5): those go to
+``removed_by_leakage.jsonl`` with the reason and are counted.
 Writes ``test_fresh.jsonl`` and ``build_report.json`` (counts per language,
 category, benign subtype and source, plus cells below the plan targets).
 Exit 0 when the file was written and every row passes the schema check.
@@ -36,6 +38,7 @@ RAW = FRESH / "raw" / "gandalf_ignore_instructions.jsonl"
 META = FRESH / "raw" / "gandalf_ignore_instructions.meta.json"
 OUT = FRESH / "test_fresh.jsonl"
 REPORT = FRESH / "build_report.json"
+REMOVED = FRESH / "removed_by_leakage.jsonl"
 SEED = 20261030
 GANDALF_SAMPLE = 50
 # Plan A3: per language, at least this many rows per cell.
@@ -74,13 +77,19 @@ def gandalf_rows() -> tuple[list[dict], dict]:
     return rows, stats
 
 
-def handwritten_rows() -> list[dict]:
+def handwritten_rows() -> tuple[list[dict], list[dict]]:
+    """Hand-written rows that pass the leakage check, and the removed ones (plan A5)."""
     rows = []
     for language in sorted(LANGUAGES):
         path = FRESH / f"handwritten_{language}.jsonl"
         if path.is_file():
             rows += [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-    return rows
+    blocked = {path.as_posix(): read_texts(path) for path in BLOCK_FILES}
+    hits = find_leaks(rows, blocked)
+    removed = [{**rows[hit["row"] - 1], "removed_reason": hit["reason"], "removed_against": hit["against"]}
+               for hit in hits]
+    dropped = {hit["row"] - 1 for hit in hits}
+    return [row for index, row in enumerate(rows) if index not in dropped], removed
 
 
 def coverage(rows: list[dict]) -> list[str]:
@@ -103,7 +112,9 @@ def coverage(rows: list[dict]) -> list[str]:
 def main() -> int:
     sys.stdout.reconfigure(errors="replace")
     gandalf, gandalf_stats = gandalf_rows()
-    rows = gandalf + handwritten_rows()
+    handwritten, removed = handwritten_rows()
+    rows = gandalf + handwritten
+    REMOVED.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in removed), encoding="utf-8")
     problems = [(index, problem) for index, row in enumerate(rows, 1) for problem in validate_row(row)]
     for index, problem in problems:
         print(f"row {index}: {problem}")
@@ -122,6 +133,18 @@ def main() -> int:
         ).items())),
         "by_source": dict(sorted(collections.Counter(row["source"].split("@")[0] for row in rows).items())),
         "gandalf": gandalf_stats,
+        "handwritten": {
+            "kept": len(handwritten),
+            "removed_by_leakage": len(removed),
+            "removed_against": dict(collections.Counter(
+                f"{Path(row['removed_against']).parent.name}/{Path(row['removed_against']).name}" for row in removed
+            )),
+            "removed_by_cell": dict(sorted(collections.Counter(
+                f"{row['language']}/{row['category']}" + (f"/{row['note']}" if row.get("note") else "")
+                for row in removed
+            ).items())),
+            "removed_file": REMOVED.relative_to(ROOT).as_posix(),
+        },
         "below_target": coverage(rows),
     }
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

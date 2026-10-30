@@ -17,12 +17,14 @@ Stand: 2026-10-30. Urteil: pass, fail oder unresolved. Fehlende Belege bleiben s
 | S3 | Quelle ist nicht im Training | pass | `git grep -i gandalf` in train/dev/eval/training: 0 Treffer; Leakage-Vorcheck: 0 Treffer gegen alle Sperrdateien |
 | S3 | Lizenz in THIRD_PARTY_NOTICES.md eingetragen | unresolved | Datei liegt ausserhalb der erlaubten Pfade; der Nutzer trägt den Entwurf ein |
 | S4 | Vorlagen für handgeschriebene Zeilen pro Sprache | pass | `datasets/test_fresh/handwritten_{de,fr,it,en}.jsonl` (leer) + `README.md`; `check_schema.py` Exit 0 |
-| S4 | Zielzahlen pro Sprache × Kategorie (A3) | unresolved | 0 Zeilen geschrieben |
+| S4 | Handgeschriebene Zeilen vorhanden, Format gültig | pass | `fresh_raw1.txt` (sha256 `e6070ede…`, Kopie in `raw/`): 360 Zeilen, 0 fehlerhafte Zeilen, 0 exakte Duplikate; `convert_fresh_raw.py` → 4 × 90 Zeilen |
+| S4 | Zielzahlen pro Sprache × Kategorie (A3) | fail | Nach dem Entfernen der Leak-Zeilen 23 Zellen unter dem Ziel: pro Sprache 8–9 Angriffe pro Kategorie (Ziel 15), 25 benign (Ziel 45), 1–2 roleplay (Ziel 15), 8–9 hard_negative (Ziel 15); siehe `build_report.json` |
 | S5 | test_fresh.jsonl gebaut, Schema grün | pass | Teil-Set: `build_test_fresh.py` → 50 Zeilen (nur Gandalf, en/instruction_override), sha256 `016de0110ab1…`; `check_schema.py` Exit 0 |
 | S5 | Zählungen im build_report = Zeilen in der Datei | pass | 50 = 50 = Summe von by_language_category |
 | S5 | Build ist reproduzierbar | pass | zweiter Lauf, gleicher sha256 `016de0110ab1` |
-| S5 | Alle 4 Sprachen × 4 Kategorien vorhanden | fail | 23 Zellen unter dem Ziel; nur en/instruction_override hat Zeilen. Wartet auf die handgeschriebenen Zeilen (kein Fix durch Claude möglich) |
-| S6 | Leakage-Check 0 Treffer auf der gespeicherten Version | unresolved | Teil-Set: 0 Treffer auf sha256 `016de0110ab1` (`reports/leakage_2026-10-30.json`). Muss auf dem vollständigen Set neu laufen |
+| S5 | Alle 4 Sprachen × 4 Kategorien vorhanden | pass | 249 Zeilen, sha256 `277061e16a9b`; jede Zelle hat ≥ 8 Zeilen (`build_report.json`) |
+| S6 | Leak-Zeilen vor der Auswertung entfernt und gezählt (A5) | pass | 161 von 360 handgeschriebenen Zeilen entfernt: 160 exakt aus `../apertus/test_fresh.jsonl`, 1 jaccard aus `train.jsonl`; Liste in `datasets/test_fresh/removed_by_leakage.jsonl` |
+| S6 | Leakage-Check 0 Treffer auf der gespeicherten Version | pass | `check_leakage.py` → 249 Zeilen, 0 Treffer; `reports/leakage_2026-10-30.json` nennt sha256 `277061e16a9b…` |
 | S7 | Auswertungs-Script berechnet Confusion Matrix, P/R/F1, FPR, Werte pro Kategorie (one-vs-benign) und Untertyp sowie Wilson-Intervalle korrekt | pass | `tests/test_fresh_eval.py`: 10 passed auf synthetischen Zeilen mit von Hand ausgerechneten Werten |
 | S7 | Auswertung startet nicht ohne passenden Leakage-Bericht und nicht auf einem Teil-Set | pass | Tests `test_leakage_gate`, `test_coverage_gate_refuses_partial_set`; Lauf `eval_test_fresh.py --lang en` → 7× `refused`, Exit 1, keine Datei geschrieben |
 | S7 | Precision, Recall, F1 pro Sprache und pro Kategorie | unresolved | noch nicht ausgewertet |

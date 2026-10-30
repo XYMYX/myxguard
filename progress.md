@@ -1,6 +1,6 @@
 # progress.md
 
-Stand: 2026-10-30, nach Etappe 5 (Auswertungs- und Bericht-Check vorbereitet).
+Stand: 2026-10-30, nach Etappe 6 (handgeschriebene Zeilen, Leak-Bereinigung). Auswertung noch nicht gelaufen.
 
 ## Plan
 
@@ -10,9 +10,9 @@ Stand: 2026-10-30, nach Etappe 5 (Auswertungs- und Bericht-Check vorbereitet).
 | S1 CLAUDE.md | erledigt |
 | S2 Schema-/Leakage-Check + Tests | erledigt; pytest 167 passed (Gesamtsuite) |
 | S3 Externe Quellen | erledigt. Offen: Eintrag in THIRD_PARTY_NOTICES.md (Nutzer) |
-| S4 Handgeschriebene Zeilen | blockiert: der Nutzer schreibt de/fr/it/en |
-| S5 Build | Script fertig; Teil-Set mit 50 Gandalf-Zeilen gebaut. Vollständiger Build wartet auf S4 |
-| S6 Leakage | Teil-Set 0 Treffer; muss nach S4 neu laufen |
+| S4 Handgeschriebene Zeilen | erledigt: `fresh_raw1.txt` mit 360 Zeilen, davon 199 neu (161 Leaks entfernt) |
+| S5 Build | erledigt: 249 Zeilen, sha256 `277061e16a9b` |
+| S6 Leakage | erledigt: 0 Treffer auf 249 Zeilen |
 | S7 Auswertung | Script + Tests fertig (`scripts/eval_test_fresh.py`); verweigert das Teil-Set; noch nie auf test_fresh gelaufen |
 | S8 Bericht | Zahlen-Check fertig (`scripts/check_report_numbers.py`); Bericht wartet auf S7 |
 | S9 | wartet |
@@ -37,6 +37,8 @@ Stand: 2026-10-30, nach Etappe 5 (Auswertungs- und Bericht-Check vorbereitet).
 - Keine Auswertung auf dem Teil-Set: Jeder Blick auf Fehler würde das Set "verbrauchen" (DEVLOG 2026-10-29).
 
 ## Offene Punkte
+
+0. **Entscheidung vor S7:** jetzt mit 8–9 Angriffen pro Kategorie und Sprache auswerten (verbraucht die 199 neuen Zeilen), oder erst die 160 alten Zeilen durch neue ersetzen.
 
 1. Handgeschriebene Zeilen: 23 Zellen liegen unter dem Ziel (siehe `datasets/test_fresh/build_report.json`). en/instruction_override ist durch Gandalf schon gedeckt.
 2. Den Entwurf aus `reports/third_party_notices_draft.md` in `THIRD_PARTY_NOTICES.md` übernehmen (Nutzer).
