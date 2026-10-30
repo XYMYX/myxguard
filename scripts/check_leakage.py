@@ -53,6 +53,11 @@ def find_leaks(rows: Sequence[dict], blocked: Blocked) -> list[dict]:
     for number, row in enumerate(rows, 1):
         text = row["text"]
         hit = None
+        if seen.reason(text) == "empty":
+            # Nothing is left after normalizing (e.g. only non-Latin letters), so
+            # near-duplicates cannot be ruled out. Count it as a hit, not as clean.
+            hits.append({"row": number, "against": "unchecked", "reason": "empty", "text": text})
+            continue
         for name, index in indexes.items():
             reason = index.reason(text)
             if reason is not None:
@@ -89,13 +94,18 @@ def _name(path: Path) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # The Windows console is cp1252; upstream rows carry characters it cannot print.
+    sys.stdout.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(description="Leakage check for test_fresh.")
     parser.add_argument("files", nargs="*", type=Path, help="Default: datasets/test_fresh/*.jsonl")
     parser.add_argument("--block", action="append", type=Path, default=[], help="Extra block file (JSONL with text)")
     parser.add_argument("--report", type=Path, help="Default: reports/leakage_<today>.json")
     args = parser.parse_args(argv)
 
-    files = args.files or sorted(FRESH.glob("*.jsonl"))
+    # Once built, test_fresh.jsonl already holds the hand-written rows; checking
+    # both would report every row as a duplicate of itself.
+    built = FRESH / "test_fresh.jsonl"
+    files = args.files or ([built] if built.is_file() else sorted(FRESH.glob("*.jsonl")))
     block_files = list(BLOCK_FILES) + args.block
     missing = [path for path in block_files if not path.is_file()]
     for path in missing:

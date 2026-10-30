@@ -40,8 +40,9 @@ Pflichtfelder in jeder Zeile, wie in train/dev/eval: `text`, `label` (`malicious
 | `scripts/check_claude_md.py` | Prüft, dass diese Datei jede Projektregel enthält und jedes Script/jeden Test auflistet | aktiv |
 | `scripts/check_schema.py` | Schema-Check für `datasets/test_fresh/*.jsonl` | aktiv |
 | `scripts/check_leakage.py` | Leakage-Check gegen train/dev/eval, samples, deepset_sample und das alte Fresh-Set, plus Duplikate innerhalb des Sets. Muss vor jeder Auswertung laufen. | aktiv |
+| `scripts/fetch_gandalf.py` | Lädt `Lakera/gandalf_ignore_instructions` als JSON nach `datasets/test_fresh/raw/` und hält die Revision fest. Nur mit Download-Freigabe. | aktiv |
 | `tests/test_fresh_tools.py` | Tests für den Schema- und den Leakage-Check | aktiv |
-| `scripts/build_test_fresh.py` | Baut `datasets/test_fresh/test_fresh.jsonl` | geplant (S5) |
+| `scripts/build_test_fresh.py` | Baut `datasets/test_fresh/test_fresh.jsonl` und `build_report.json`: Gandalf-Stichprobe (50, Seed 20261030) plus handgeschriebene Zeilen. Führt den Detektor nie aus. | aktiv |
 | `scripts/eval_test_fresh.py` | Auswertung pro Sprache | geplant (S7) |
 | `scripts/check_report_numbers.py` | Prüft die Zahlen im Bericht gegen die Rohdaten | geplant (S8) |
 
@@ -52,4 +53,8 @@ Gesamte Suite: `python -m pytest -q`. Im Moment ist pytest nicht installiert (Bl
 Jeder Fehler und jede Korrektur bekommt hier eine Regel, damit es nicht wieder passiert.
 
 - 2026-10-30: Bei leeren Dateien hat der Leakage-Check "0 Treffer" gemeldet, ohne etwas zu prüfen. Jetzt gilt 0 Zeilen als Fehler (Exit 1). Ein Check, der nichts prüft, gilt nie als bestanden.
+- 2026-10-30: Der Leakage-Check ist auf der Windows-Konsole (cp1252) beim Ausgeben fremder Zeichen abgestürzt. Scripts, die Fremdtext ausgeben, setzen `sys.stdout.reconfigure(errors="replace")`.
+- 2026-10-30: Eine Zeile, die nach dem Normalisieren leer ist (z. B. nur chinesische Schrift), wurde als Treffer "gegen train.jsonl" gemeldet. Solche Zeilen heissen jetzt `unchecked` und zählen weiter als Treffer, nie als sauber.
+- 2026-10-30: Wenn der Leakage-Check die gebaute Datei und die Quelldateien zusammen prüft, meldet er jede Zeile als Duplikat ihrer selbst. Sobald `test_fresh.jsonl` existiert, prüft er nur diese Datei.
+- 2026-10-30: Ausgewertet wird das Test-Set erst, wenn alle vier Sprachen da sind, und nur einmal. Kein Zwischenlauf auf einem Teil-Set.
 - 2026-10-30: hackaprompt steckt schon in train und heldout. Eine Quelle gilt erst als "unbenutzt", wenn `git grep <name> datasets/ training/` nichts findet.

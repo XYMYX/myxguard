@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-30",
+  "checked": {
+    "datasets/test_fresh/test_fresh.jsonl": "016de0110ab1145e173912a4ff2176e1aeaa96f9e520eece421523b3b745caf2"
+  },
+  "blocked": {
+    "datasets/train/train.jsonl": {
+      "sha256": "795a4070b9bdfa8e61972e7c9a522e377902e59c2db6f8fb0e11e5bafe5fa956",
+      "rows": 2576
+    },
+    "datasets/dev/dev.jsonl": {
+      "sha256": "9fbc9c9165060028c7812565b9fdf6ce305b25b3fa40a92d177896335584fe10",
+      "rows": 113
+    },
+    "datasets/eval/heldout.jsonl": {
+      "sha256": "a01ab2166ea8818438b19f38fe669ebed5ec04d3a45d058005168749a74bc88f",
+      "rows": 370
+    },
+    "datasets/samples.jsonl": {
+      "sha256": "b2b80682dc2d1083f4cd5bbb6fc8f80c65388de9e4a848622d01f4d72f5fab9e",
+      "rows": 99
+    },
+    "datasets/deepset_sample.jsonl": {
+      "sha256": "6facc2d694689353a61ea10e7aeb85c2d5a9685eaba318344450b31658cef0a2",
+      "rows": 8
+    },
+    "C:/Users/User/Desktop/apertus/test_fresh.jsonl": {
+      "sha256": "f3c13c89eeff1d37ffb8c9253c46076208689568499041a297dfd119f7651be0",
+      "rows": 160
+    }
+  },
+  "rows_checked": 50,
+  "hits": []
+}

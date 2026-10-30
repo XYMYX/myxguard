@@ -1,0 +1,18 @@
+{
+  "dataset": "Lakera/gandalf_ignore_instructions",
+  "sha": "04737b65e90a6794ec227012e4a255a7def6344b",
+  "last_modified": "2025-02-28T07:58:11.000Z",
+  "licenses": [
+    "mit"
+  ],
+  "splits_expected": {
+    "train": 777,
+    "validation": 111,
+    "test": 112
+  },
+  "splits_written": {
+    "train": 777,
+    "validation": 111,
+    "test": 112
+  }
+}

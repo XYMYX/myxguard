@@ -23,6 +23,7 @@ Stand: 2026-10-30. Grundlage: HARNESS.md, README.md, DEVLOG.md, training/README.
 - A3 Ziel pro Sprache: je Angriffskategorie ≥ 15 Zeilen, benign ≥ 45 (davon ≥ 15 Rollenspiel-Bitten, ≥ 15 hard negatives). Tatsächliche Zahlen werden berichtet, auch wenn das Ziel verfehlt wird.
 - A4 Per-Kategorie-Precision: Teilmenge = Zeilen der Kategorie + alle benign-Zeilen derselben Sprache (one-vs-benign). So definiert, weil ein Binär-Detektor keine Kategorie vorhersagt. Steht so im Bericht.
 - A5 Leak-Zeilen werden **vor** der ersten Auswertung entfernt und gezählt. Nach der Auswertung wird das Set nicht mehr verändert.
+- A7 (entschieden am 2026-10-30) Gandalf: alle Zeilen `instruction_override`, Stichprobe 50 mit Seed 20261030 aus den Zeilen, die nach dem Leakage-Vorcheck übrig sind.
 - A6 Kein Text wird von Apertus erzeugt. Claude schreibt keine Test-Texte (siehe offene Frage).
 
 ## Schritte

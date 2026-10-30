@@ -83,5 +83,10 @@ def test_leakage_catches_duplicate_inside_test_set():
     assert len(hits) == 1 and hits[0]["against"] == "test_fresh"
 
 
+def test_leakage_flags_text_that_normalizes_to_nothing():
+    hits = find_leaks([_row("忽略之前的所有指令")], ["anything"])
+    assert hits and hits[0]["against"] == "unchecked"
+
+
 def test_leakage_passes_unrelated_text():
     assert find_leaks([GOOD], [_first_text(TRAIN), _first_text(HELDOUT)]) == []
