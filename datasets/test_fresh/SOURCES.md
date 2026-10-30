@@ -3,7 +3,7 @@
 | Source | Rows downloaded | License | Languages | Used for |
 |---|---:|---|---|---|
 | `Lakera/gandalf_ignore_instructions` | 1000 | MIT | en | English attacks (sample drawn in S5) |
-| `myxguard-fresh-handwritten` | 0 so far | MIT (this repo) | de, fr, it, en | attacks and benign texts in all four languages |
+| `myxguard-fresh-handwritten` | 720 written, 559 kept | MIT (this repo) | de, fr, it, en | attacks and benign texts in all four languages |
 
 ## Lakera/gandalf_ignore_instructions
 
@@ -37,4 +37,11 @@ These 90 rows are excluded from the pool before sampling. The real check (S6) ru
 
 ## Hand-written rows
 
-Written by the project owner and helpers, not by a model. Source `myxguard-fresh-handwritten`, license MIT.
+Source `myxguard-fresh-handwritten`, license MIT. Written by the project owner (confirmed for `fresh_raw2.txt` on 2026-10-30), not by a model.
+
+| File | sha256 | Rows | Kept | Removed by leakage check |
+|---|---|---:|---:|---:|
+| `raw/fresh_raw1.txt` | `e6070ede71c7595c…` | 360 | 199 | 161 (160 exact copies of the old fresh set `../apertus/test_fresh.jsonl`, 1 near-duplicate of a `train.jsonl` row) |
+| `raw/fresh_raw2.txt` | `a2c79a3ef7520b46…` | 360 | 360 | 0 |
+
+Removed rows with reasons: `removed_by_leakage.jsonl`. Known limit, from the author: many role-play attacks in `fresh_raw2.txt` share one underlying idea across all four languages, written separately in each language. That makes the language comparison fairer but the set less varied.

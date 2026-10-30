@@ -1,41 +1,41 @@
 {
-  "rows": 249,
-  "sha256": "277061e16a9b5630f1410983dd61cec1dfb033b76b10f2144c1290c790dd7e4c",
+  "rows": 609,
+  "sha256": "242a68c227e01d0d2adc31450a4c0ac994427794e8da031fd701c202f3de2236",
   "by_language_category": {
-    "de/benign": 25,
-    "de/data_exfiltration": 8,
-    "de/instruction_override": 8,
-    "de/jailbreak_persona": 9,
-    "en/benign": 25,
-    "en/data_exfiltration": 8,
-    "en/instruction_override": 58,
-    "en/jailbreak_persona": 8,
-    "fr/benign": 25,
-    "fr/data_exfiltration": 8,
-    "fr/instruction_override": 8,
-    "fr/jailbreak_persona": 9,
-    "it/benign": 25,
-    "it/data_exfiltration": 8,
-    "it/instruction_override": 8,
-    "it/jailbreak_persona": 9
+    "de/benign": 70,
+    "de/data_exfiltration": 23,
+    "de/instruction_override": 23,
+    "de/jailbreak_persona": 24,
+    "en/benign": 70,
+    "en/data_exfiltration": 23,
+    "en/instruction_override": 73,
+    "en/jailbreak_persona": 23,
+    "fr/benign": 70,
+    "fr/data_exfiltration": 23,
+    "fr/instruction_override": 23,
+    "fr/jailbreak_persona": 24,
+    "it/benign": 70,
+    "it/data_exfiltration": 23,
+    "it/instruction_override": 23,
+    "it/jailbreak_persona": 24
   },
   "by_language_benign_subtype": {
-    "de/hard_negative": 9,
-    "de/plain": 15,
-    "de/roleplay": 1,
-    "en/hard_negative": 8,
-    "en/plain": 15,
-    "en/roleplay": 2,
-    "fr/hard_negative": 8,
-    "fr/plain": 15,
-    "fr/roleplay": 2,
-    "it/hard_negative": 8,
-    "it/plain": 15,
-    "it/roleplay": 2
+    "de/hard_negative": 24,
+    "de/plain": 35,
+    "de/roleplay": 11,
+    "en/hard_negative": 23,
+    "en/plain": 35,
+    "en/roleplay": 12,
+    "fr/hard_negative": 23,
+    "fr/plain": 35,
+    "fr/roleplay": 12,
+    "it/hard_negative": 23,
+    "it/plain": 35,
+    "it/roleplay": 12
   },
   "by_source": {
     "Lakera/gandalf_ignore_instructions": 50,
-    "myxguard-fresh-handwritten": 199
+    "myxguard-fresh-handwritten": 559
   },
   "gandalf": {
     "raw": 1000,
@@ -49,7 +49,7 @@
     "revision": "04737b65e90a6794ec227012e4a255a7def6344b"
   },
   "handwritten": {
-    "kept": 199,
+    "kept": 559,
     "removed_by_leakage": 161,
     "removed_against": {
       "apertus/test_fresh.jsonl": 160,
@@ -84,28 +84,9 @@
     "removed_file": "datasets/test_fresh/removed_by_leakage.jsonl"
   },
   "below_target": [
-    "de/data_exfiltration: 8 < 15",
-    "de/instruction_override: 8 < 15",
-    "de/jailbreak_persona: 9 < 15",
-    "de/benign: 25 < 45",
-    "de/benign/roleplay: 1 < 15",
-    "de/benign/hard_negative: 9 < 15",
-    "en/data_exfiltration: 8 < 15",
-    "en/jailbreak_persona: 8 < 15",
-    "en/benign: 25 < 45",
-    "en/benign/roleplay: 2 < 15",
-    "en/benign/hard_negative: 8 < 15",
-    "fr/data_exfiltration: 8 < 15",
-    "fr/instruction_override: 8 < 15",
-    "fr/jailbreak_persona: 9 < 15",
-    "fr/benign: 25 < 45",
-    "fr/benign/roleplay: 2 < 15",
-    "fr/benign/hard_negative: 8 < 15",
-    "it/data_exfiltration: 8 < 15",
-    "it/instruction_override: 8 < 15",
-    "it/jailbreak_persona: 9 < 15",
-    "it/benign: 25 < 45",
-    "it/benign/roleplay: 2 < 15",
-    "it/benign/hard_negative: 8 < 15"
+    "de/benign/roleplay: 11 < 15",
+    "en/benign/roleplay: 12 < 15",
+    "fr/benign/roleplay: 12 < 15",
+    "it/benign/roleplay: 12 < 15"
   ]
 }
